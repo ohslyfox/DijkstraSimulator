@@ -57,14 +57,33 @@ class Element {
     this.pressed = pressed; 
   }
   
+  
   public boolean collision() {
-    pressed = mousePressed && dist(location.x, location.y, mouseX, mouseY) <= 30;
+    pressed = mousePressed && hovering();
     return pressed;
   }
   
-  public void display() {
+  public boolean hovering() {
+    return dist(location.x, location.y, mouseX, mouseY) <= 30;
+  }
+  
+  public void display(ArrayList<Node> adjList) {
     fill(220);
     stroke(0);
+    strokeWeight(1);
     ellipse(location.x, location.y, 60, 60); 
+    if (hovering() && (!optionsWindow.hovering() || !optionsWindow.getVisible())) {
+      if (adjList.size() > 0) {
+        rect(location.x+40, location.y-40, 270, 21*adjList.size());
+        fill(0);
+        textSize(18);
+        textAlign(LEFT, CENTER);
+        for (int i = 0; i < adjList.size(); i++) {
+          Node current = adjList.get(i);  
+          
+          text(String.format("%-3s %-3d %-9s %-3.1f", "To:", current.getUID()+1, "Distance:", current.getWeight()), location.x + 45, (location.y - 50) + (20*(i+1)));
+        }
+      }
+    }
   }
 }

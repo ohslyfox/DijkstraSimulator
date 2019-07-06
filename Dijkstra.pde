@@ -1,9 +1,20 @@
+import g4p_controls.*;
+
 Graph graph;
+OptionsWindow optionsWindow;
+
+PFont mono;
+boolean mousePress;
 
 void setup() {
   size(1280, 720);
   smooth(2);
-  textAlign(CENTER, CENTER);
+  
+  mono = createFont("andalemo.ttf", 32);
+  textFont(mono);
+  mousePress = false;
+  
+  optionsWindow = new OptionsWindow();
   graph = new Graph(20);
 }
 
@@ -13,13 +24,16 @@ public void keyPressed() {
   }
   if (key == 'd' || key == 'D') {
     Element[] sol = graph.dijkstra(0,19);
-    int target = 19;
-    for (int i = 19; i >= 0; i--) {
-      Element e = sol[i];
-      if (target != e.getUID()()) {
-        e.setPi(-1); 
+    ArrayList<Integer> path = new ArrayList<Integer>();
+    int current = 19;
+    while (current > 0) {
+      path.add(current);
+      current = sol[current].getPi();
+    }
+    for (int i = 0; i < 19; i++) {
+      if (!path.contains(i)) {
+        sol[i].setPi(-1); 
       }
-      target = e.getPi();
     }
     println();
     for (Element e : sol) {
@@ -28,15 +42,28 @@ public void keyPressed() {
     }
     println();
   }
+  if (key == 'w' || key == 'W') {
+    optionsWindow.toggleVisible(); 
+  }
 }
+
 
 public void mouseReleased() {
   graph.mouseRelease();
+  optionsWindow.mouseRelease();
+  mousePress = false;
+  //optionsWindow.setPressed(false);
 }
 
-
 void draw() {
-  background(255);
-  graph.mousePress();
+  background(255); 
+  if (!optionsWindow.isPressed()) {
+    graph.mousePress();
+  }
   graph.display();
+  optionsWindow.display();
+  
+  if (!mousePress && mousePressed) {
+    mousePress = true;
+  }
 }
