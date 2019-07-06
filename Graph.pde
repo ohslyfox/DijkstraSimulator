@@ -1,11 +1,13 @@
 public class Graph {
-  int vertexCount;
-  Element vertexArray[];
-  Element draggingElement;
-  ArrayList<ArrayList<Node>> adjList;
+  private int vertexCount;
+  private Element vertexArray[];
+  private Element draggingElement;
+  private Element hoveringElement;
+  private ArrayList<ArrayList<Node>> adjList;
   
   public Graph(int vertexCount) {
     draggingElement = null;
+    hoveringElement = null;
     this.vertexCount = vertexCount;
     createVerticies();
     validateVerticies();
@@ -222,6 +224,7 @@ public class Graph {
   }
   
   public void display() {
+    //display connections
     for (int i = 0; i < this.vertexCount; i++) {
       ArrayList<Node> currentAdjList = adjList.get(i);
       Element from = vertexArray[i];
@@ -233,20 +236,58 @@ public class Graph {
           stroke(0,255,0,200); 
         }
         else {
-          strokeWeight(1);
-          stroke(255,0,0,100);
+          strokeWeight(2);
+          stroke(255,0,0,80);
         }
         line(from.location.x, from.location.y, to.location.x, to.location.y);
       }
     }
 
+    //display elements
     for (int i = 0; i < this.vertexCount; i++) {
       Element e = vertexArray[i];
-      e.display(adjList.get(i));
+      e.setFillColor(220,220,220,255);
+      if (hoveringElement == null && e.hovering()) {
+        hoveringElement = e;
+      }
+      if (hoveringElement != null) {
+        hoveringElement.setFillColor(185,185,185,255);
+      }
+      e.display();
       fill(0);
       textSize(32);
       textAlign(CENTER, CENTER);
       text("" + (i+1), e.location.x, e.location.y-4);
+    }
+    
+    //display HUD info box for hovered element
+    if (hoveringElement != null) {
+      if (hoveringElement.hovering() && (!optionsWindow.hovering() || !optionsWindow.getVisible())) {
+        ArrayList<Node> hoveringAdjList = adjList.get(hoveringElement.getUID());
+        if (hoveringAdjList.size() > 0) {
+          float displayX = mouseX > width-312 ? mouseX - 310 : mouseX + 40;
+          float displayY = mouseY-40;
+          if (mouseY < 40) {
+            displayY = mouseY+10; 
+          }
+          else if (mouseY > height - 10 - (20*hoveringAdjList.size())) {
+            displayY = mouseY-20 - (20*hoveringAdjList.size());
+          }
+          fill(220, 220, 220, 200);
+          strokeWeight(1);
+          rect(displayX, displayY, 270, 20*hoveringAdjList.size());
+          fill(0);
+          textSize(18);
+          textAlign(LEFT, CENTER);
+          for (int i = 0; i < hoveringAdjList.size(); i++) {
+            Node current = hoveringAdjList.get(i);  
+            text(String.format("%-3s %-3d %-9s %-3.1f", "To:", current.getUID()+1, "Distance:", current.getWeight()), displayX + 5, (displayY - 12) + (20*(i+1)));
+          }
+        }
+      }
+      if (!hoveringElement.hovering()) {
+        hoveringElement = null;
+      }
     }
   }
 }

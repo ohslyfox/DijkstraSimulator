@@ -96,15 +96,18 @@ class DialogBox {
   
   void display() {
     if (this.visible) {
-      if (fade && hovering()) {
-        opacity = opacity < 255 ? opacity+15 : 255;
+      if (fade) {
+        if (hovering()) {
+          opacity = opacity < 255 ? opacity+12 : 255;
+        }
+        else {
+          opacity = opacity > 100 ? opacity-12 : 100;
+        }
       }
-      else {
-        opacity = opacity > 100 ? opacity-15 : 100;
-      }
+      strokeWeight(1);
       fill(240,240,240,opacity);
       rect(x,y,w,h);
-      fill(220,220,220,255);
+      fill(220,220,220,opacity + 50);
       rect(x,y,w,h - (h-30));
       fill(0);
       textAlign(CORNER);

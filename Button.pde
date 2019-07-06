@@ -48,7 +48,7 @@ public class Button {
         fill(clicked); 
       }
     }
-    
+    strokeWeight(1);
     rect(location.x, location.y, dimensions.x, dimensions.y);
     fill(0);
     textSize(12);
