@@ -60,8 +60,10 @@ class Element {
   
   public void mousePress() {
     if (pressed) {
-      if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
-        location.x = mouseX;
+      if (mouseX > 30 && mouseX < width-30) {
+        location.x = mouseX;  
+      }
+      if (mouseY > 30 && mouseY < height-30) {
         location.y = mouseY;
       }
     }

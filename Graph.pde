@@ -287,7 +287,7 @@ public class Graph {
     for (int i = 0; i < this.vertexCount; i++) {
       Element e = vertexArray.get(i);
       e.setFillColor(220,220,220,255);
-      if (hoveringElement == null && e.hovering()) {
+      if (hoveringElement == null && e.hovering() && !optionsWindow.hovering()) {
         hoveringElement = e;
       }
       if (hoveringElement != null) {
@@ -329,7 +329,7 @@ public class Graph {
           }
         }
       }
-      if (!hoveringElement.hovering()) {
+      if (!hoveringElement.hovering() || optionsWindow.hovering()) {
         hoveringElement = null;
       }
     }

@@ -199,6 +199,9 @@ public class OptionsWindow {
             if (totalNodes < to) {
               to = totalNodes; 
             }
+            if (totalNodes-1 < from) {
+              from = totalNodes-1; 
+            }
             graph.removeNode();
           }
         }
