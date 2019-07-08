@@ -6,7 +6,6 @@ class DialogBox {
   String title;
   boolean pressed;
   boolean visible;
-  boolean fade;
   
   DialogBox(int x, int y, int w, int h, String title) {
     this.x = x;
@@ -16,7 +15,6 @@ class DialogBox {
     this.title = title;
     this.pressed = false;
     this.visible = false;
-    this.fade = false;
     this.opacity = 255;
   }
   
@@ -74,10 +72,6 @@ class DialogBox {
     this.visible = !this.visible;
   }
   
-  public void setFade(boolean fade) {
-    this.fade = fade; 
-  }
-  
   boolean getVisible() {
     return this.visible; 
   }
@@ -94,22 +88,19 @@ class DialogBox {
     return this.y;
   }
   
+  public void setOpacity(int opacity) {
+    this.opacity = opacity; 
+  }
+  
   void display() {
     if (this.visible) {
-      if (fade) {
-        if (hovering()) {
-          opacity = opacity < 255 ? opacity+12 : 255;
-        }
-        else {
-          opacity = opacity > 100 ? opacity-12 : 100;
-        }
-      }
       strokeWeight(1);
+      stroke(0,0,0,opacity+50);
       fill(240,240,240,opacity);
       rect(x,y,w,h);
       fill(220,220,220,opacity + 50);
       rect(x,y,w,h - (h-30));
-      fill(0);
+      fill(0,0,0,opacity + 50);
       textAlign(CORNER);
       textSize(20);
       text(title, x+10,round(y+(h - (h-22))));

@@ -10,7 +10,7 @@ void setup() {
   size(1280, 720);
   smooth(2);
   frameRate(60);
-  
+  surface.setTitle("Dijkstra's Shortest Path Simulator");
   mono = createFont("andalemo.ttf", 32);
   textFont(mono);
   mousePress = false;
@@ -20,7 +20,7 @@ void setup() {
 }
 
 public void keyPressed() {
-  if (key == 'w' || key == 'W') {
+  if (key == 's' || key == 'S') {
     optionsWindow.toggleVisible(); 
   }
 }
@@ -30,7 +30,6 @@ public void mouseReleased() {
   graph.mouseRelease();
   optionsWindow.mouseRelease();
   mousePress = false;
-  //optionsWindow.setPressed(false);
 }
 
 void draw() {
@@ -44,4 +43,9 @@ void draw() {
   if (!mousePress && mousePressed) {
     mousePress = true;
   }
+  
+  fill(0,0,0,200);
+  textSize(12);
+  textAlign(LEFT, CENTER);
+  text("by slyfox", 5, height - 12);
 }

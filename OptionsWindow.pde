@@ -1,23 +1,30 @@
 public class OptionsWindow {
   private DialogBox optionsDialog;
-  private Button fromUp, fromDown, toUp, toDown, dijkstra,
-                 genNodes, createLink, destroyLink;
-  private int from, to;
+  private Button fromUp, fromDown, toUp, toDown, maxUp, maxDown,
+                 dijkstra, createGraph, createLink, destroyLink;
+  private int from, to, totalNodes;
+  private boolean fade, visible;
+  private int opacity;
   
   public OptionsWindow() {
-    fromUp = new Button(0, 0, 20, 20, ">");
-    fromDown = new Button(0, 0, 20, 20, "<");
-    toUp = new Button(0, 0, 20, 20, ">");
-    toDown = new Button(0, 0, 20, 20, "<");
-    dijkstra = new Button(0, 0, 100, 25, "dijkstra");
-    genNodes = new Button(0, 0, 100, 25, "create nodes");
-    createLink = new Button(0, 0, 100, 25, "create link");
-    destroyLink = new Button(0, 0, 100, 25, "remove link");
+    fromUp = new Button(0, 0, 50, 18, ">");
+    fromDown = new Button(0, 0, 50, 18, "<");
+    toUp = new Button(0, 0, 50, 18, ">");
+    toDown = new Button(0, 0, 50, 18, "<");
+    dijkstra = new Button(0, 0, 230, 25, "dijkstra's shortest path");
+    createGraph = new Button(0, 0, 112, 25, "new graph");
+    createLink = new Button(0, 0, 112, 25, "create link");
+    destroyLink = new Button(0, 0, 112, 25, "remove link");
+    maxUp = new Button(0, 0, 50, 18, ">");
+    maxDown = new Button(0, 0, 50, 18, "<");
     from = 1;
     to = 20;
-    optionsDialog = new DialogBox(10, 10, 250, 150, "Dijkstra Options");
+    totalNodes = 20;
+    optionsDialog = new DialogBox(10, 10, 250, 204, "Settings");
     optionsDialog.visible();
-    optionsDialog.setFade(true);
+    this.fade = false;
+    this.visible = true;
+    this.opacity = 255;
   }
   
   public void mouseRelease() {
@@ -27,9 +34,11 @@ public class OptionsWindow {
     toUp.setActivated(false);
     toDown.setActivated(false);
     dijkstra.setActivated(false);
-    genNodes.setActivated(false);
+    createGraph.setActivated(false);
     createLink.setActivated(false);
     destroyLink.setActivated(false);
+    maxUp.setActivated(false);
+    maxDown.setActivated(false);
   }
   
   public boolean isPressed() {
@@ -41,7 +50,7 @@ public class OptionsWindow {
   }
   
   public void toggleVisible() {
-    optionsDialog.visible(); 
+    this.visible = !this.visible;
   }
   
   public boolean hovering() {
@@ -49,20 +58,22 @@ public class OptionsWindow {
   }
   
   public boolean getVisible() {
-    return optionsDialog.getVisible();
+    return this.visible;
   }
   
   private void runDijkstra() {
-    Element[] sol = graph.dijkstra(from-1,to-1);
+    ArrayList<Element> sol = graph.dijkstra(from-1);
     ArrayList<Integer> path = new ArrayList<Integer>();
     int current = to-1;
-    while (current > 0) {
+    while (current >= 0) {
       path.add(current);
-      current = sol[current].getPi();
+      current = sol.get(current).getPi();
     }
+    
+    graph.setPathIDs(path);
     for (int i = 0; i < graph.getSize(); i++) {
-      if (!path.contains(i)) {
-        sol[i].setPi(-1); 
+      if (!path.contains(i) && i != from-1) {
+        sol.get(i).setPi(-2); 
       }
     }
     println();
@@ -74,70 +85,123 @@ public class OptionsWindow {
   }
   
   public void display() {
-    if (optionsDialog.getVisible() && !graph.isDragging()) {
-      if (mousePressed && optionsDialog.collision()) {
-        optionsWindow.setPressed(true); 
-      }
-    }
-    optionsDialog.move();
-    optionsDialog.display();
-    if (optionsDialog.getVisible()) {
-      text("From: " + from, optionsDialog.getX() + 10, optionsDialog.getY() + 54);
-      text("To: " + to, optionsDialog.getX() + 10, optionsDialog.getY() + 114);
-      fromUp.setLocation(optionsDialog.getX() + 34, optionsDialog.getY() + 62);
-      fromUp.display();
-      if (fromUp.isPressed()) {
-        if (from < to-1 && from < graph.getSize()) {
-          from++; 
+    if (this.visible) {
+      if (fade) {
+        if (hovering()) {
+          opacity = opacity < 255 ? opacity+20 : 255;
+        }
+        else {
+          opacity = opacity > 100 ? opacity-10 : 100;
         }
       }
-    
-      fromDown.setLocation(optionsDialog.getX() + 12, optionsDialog.getY() + 62);
-      fromDown.display();
-      if (fromDown.isPressed()) {
-        if (from > 1) {
-          from--; 
+      // turn on fade after first hover
+      else {
+        if (hovering()) {
+          fade = true; 
         }
       }
       
-      toUp.setLocation(optionsDialog.getX() + 34, optionsDialog.getY() + 122);
-      toUp.display();
-      if (toUp.isPressed()) {
-        if (to < graph.getSize()) {
-          to++; 
+      if (optionsDialog.getVisible() && !graph.isDragging()) {
+        if (mousePressed && optionsDialog.collision()) {
+          optionsWindow.setPressed(true); 
         }
       }
-    
-      toDown.setLocation(optionsDialog.getX() + 12, optionsDialog.getY() + 122);
-      toDown.display();
-      if (toDown.isPressed()) {
-        if (to > from+1 && to > 1) {
-          to--; 
+      optionsDialog.move();
+      optionsDialog.setOpacity(opacity);
+      optionsDialog.display();
+      if (optionsDialog.getVisible()) {
+        fill(0, 0, 0, opacity);
+        text("From: " + from, optionsDialog.getX() + 10, optionsDialog.getY() + 54);
+        text("To: " + to, optionsDialog.getX() + 135, optionsDialog.getY() + 54);
+        text("Nodes: " + totalNodes, optionsDialog.getX() + 10, optionsDialog.getY() + 170);
+        textSize(10);
+        text("'S' to hide settings", optionsDialog.getX() + 123, optionsDialog.getY() + 194);
+        fromUp.setLocation(optionsDialog.getX() + 65, optionsDialog.getY() + 62);
+        fromUp.setOpacity(opacity);
+        fromUp.display();
+        if (fromUp.isPressed()) {
+          if (from < to-1 && from < graph.getSize()) {
+            from++; 
+          }
         }
-      }
       
-      dijkstra.setLocation(optionsDialog.getX() + 140, optionsDialog.getY() + 38);
-      dijkstra.display();
-      if (dijkstra.isPressed()) {
-        runDijkstra();
-      }
+        fromDown.setLocation(optionsDialog.getX() + 10, optionsDialog.getY() + 62);
+        fromDown.setOpacity(opacity);
+        fromDown.display();
+        if (fromDown.isPressed()) {
+          if (from > 1) {
+            from--; 
+          }
+        }
+        
+        toUp.setLocation(optionsDialog.getX() + 190, optionsDialog.getY() + 62);
+        toUp.setOpacity(opacity);
+        toUp.display();
+        if (toUp.isPressed()) {
+          if (to < graph.getSize() && to < totalNodes) {
+            to++; 
+          }
+        }
       
-      genNodes.setLocation(optionsDialog.getX() + 140, optionsDialog.getY() + 65);
-      genNodes.display();
-      if (genNodes.isPressed()) {
-        graph = new Graph(20); 
-      }
-      
-      createLink.setLocation(optionsDialog.getX() + 140, optionsDialog.getY() + 92);
-      createLink.display();
-      if (createLink.isPressed()) {
-        graph.createLink(from-1, to-1); 
-      }
-      
-      destroyLink.setLocation(optionsDialog.getX() + 140, optionsDialog.getY() + 119);
-      destroyLink.display();
-      if (destroyLink.isPressed()) {
-        graph.destroyLink(from-1, to-1); 
+        toDown.setLocation(optionsDialog.getX() + 135, optionsDialog.getY() + 62);
+        toDown.setOpacity(opacity);
+        toDown.display();
+        if (toDown.isPressed()) {
+          if (to > from+1 && to > 1) {
+            to--; 
+          }
+        }
+        
+        dijkstra.setLocation(optionsDialog.getX() + 10, optionsDialog.getY() + 90);
+        dijkstra.setOpacity(opacity);
+        dijkstra.display();
+        if (dijkstra.isPressed()) {
+          runDijkstra();
+        }
+        
+        createGraph.setLocation(optionsDialog.getX() + 128, optionsDialog.getY() + 152);
+        createGraph.setOpacity(opacity);
+        createGraph.display();
+        if (createGraph.isPressed()) {
+          graph.createGraph(); 
+        }
+        
+        createLink.setLocation(optionsDialog.getX() + 10, optionsDialog.getY() + 121);
+        createLink.setOpacity(opacity);
+        createLink.display();
+        if (createLink.isPressed()) {
+          graph.createLink(from-1, to-1); 
+        }
+        
+        destroyLink.setLocation(optionsDialog.getX() + 128, optionsDialog.getY() + 121);
+        destroyLink.setOpacity(opacity);
+        destroyLink.display();
+        if (destroyLink.isPressed()) {
+          graph.destroyLink(from-1, to-1); 
+        }
+        
+        maxUp.setLocation(optionsDialog.getX() + 65, optionsDialog.getY() + 178);
+        maxUp.setOpacity(opacity);
+        maxUp.display();
+        if (maxUp.isPressed()) {
+          if (totalNodes < 20) {
+            totalNodes++; 
+            graph.createNode();
+          }
+        }
+        
+        maxDown.setLocation(optionsDialog.getX() + 10, optionsDialog.getY() + 178);
+        maxDown.setOpacity(opacity);
+        maxDown.display();
+        if (maxDown.isPressed()) {
+          if (totalNodes > 2) {
+            totalNodes--;
+            if (totalNodes < to) {
+              to = totalNodes; 
+            }
+            graph.removeNode();
+          }
+        }
       }
     }
   }
