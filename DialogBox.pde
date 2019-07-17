@@ -1,34 +1,31 @@
 class DialogBox {
-  int x, y;
-  int w, h;
+  PVector location, dimensions;
   int oMouseX, oMouseY;
   int opacity;
   String title;
   boolean pressed;
   boolean visible;
   
-  DialogBox(int x, int y, int w, int h, String title) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
+  public DialogBox(int x, int y, int w, int h, String title) {
+    this.location = new PVector(x, y);
+    this.dimensions = new PVector(w, h);
     this.title = title;
     this.pressed = false;
     this.visible = false;
     this.opacity = 255;
   }
   
-  void move() {
+  public void move() {
     if (this.pressed && this.visible) {
-      this.x += (mouseX - this.oMouseX);
-      this.y += (mouseY - this.oMouseY);
+      this.location.x += (mouseX - this.oMouseX);
+      this.location.y += (mouseY - this.oMouseY);
       this.oMouseX = mouseX;
       this.oMouseY = mouseY;
     }
-    perimeter();
+    bound();
   }
   
-  void setPressed(boolean input) {
+  public void setPressed(boolean input) {
     if (this.pressed == false && input == true && this.visible == true) {
       this.oMouseX = mouseX;
       this.oMouseY = mouseY;
@@ -36,9 +33,9 @@ class DialogBox {
     this.pressed = input;
   }
   
-  boolean collision() {
-    if (mouseX > this.x && mouseX < (x+w)) {
-      if (mouseY > this.y && mouseY < (y + (h-(h-30)))) {
+  public boolean hoveringTitleBar() {
+    if (mouseX > this.location.x && mouseX < (location.x+dimensions.x)) {
+      if (mouseY > this.location.y && mouseY < (location.y + (dimensions.y-(dimensions.y-30)))) {
         return true;
       }
     }
@@ -46,65 +43,65 @@ class DialogBox {
   }
   
   public boolean hovering() {
-    if (mouseX > this.x && mouseX < x + w &&
-        mouseY > this.y && mouseY < y + h) {
+    if (mouseX > this.location.x && mouseX < location.x + dimensions.x &&
+        mouseY > this.location.y && mouseY < location.y + dimensions.y) {
       return true;      
     }
     return false;
   }
   
-  void perimeter() {
-    if (this.x < 0) {
-      this.x = 0;
+  private void bound() {
+    if (this.location.x < 0) {
+      this.location.x = 0;
     }
-    if ((this.x + this.w) > width) {
-      this.x = (width - this.w);
+    if ((this.location.x + this.dimensions.x) > width) {
+      this.location.x = (width - this.dimensions.x);
     }
-    if ((this.y + this.h > height)) {
-      this.y = (height - this.h);
+    if ((this.location.y + this.dimensions.y > height)) {
+      this.location.y = (height - this.dimensions.y);
     }
-    if (this.y < 0) {
-      this.y = 0;
+    if (this.location.y < 0) {
+      this.location.y = 0;
     }
   }
   
-  void visible() {
+  public void toggleVisible() {
     this.visible = !this.visible;
   }
   
-  boolean getVisible() {
+  public boolean getVisible() {
     return this.visible; 
   }
   
-  boolean isPressed() {
+  public boolean isPressed() {
     return this.pressed;
   }
   
-  int getX() {
-    return this.x;
+  public float getX() {
+    return this.location.x;
   }
   
-  int getY() {
-    return this.y;
+  public float getY() {
+    return this.location.y;
   }
   
   public void setOpacity(int opacity) {
     this.opacity = opacity; 
   }
   
-  void display() {
+  public void display() {
     if (this.visible) {
       strokeWeight(1);
       stroke(0,0,0,opacity+50);
       fill(240,240,240,opacity);
-      rect(x,y,w,h);
+      rect(location.x,location.y,dimensions.x,dimensions.y);
       fill(220,220,220,opacity + 50);
-      rect(x,y,w,h - (h-30));
+      rect(location.x,location.y,dimensions.x,dimensions.y - (dimensions.y-30));
       fill(0,0,0,opacity + 50);
       textAlign(CORNER);
       textSize(20);
-      text(title, x+10,round(y+(h - (h-22))));
-      text(title, x+11,round(y+(h - (h-22))));
+      text(title, location.x+10,round(location.y+(dimensions.y - (dimensions.y-22))));
+      text(title, location.x+11,round(location.y+(dimensions.y - (dimensions.y-22))));
     }
   }
   

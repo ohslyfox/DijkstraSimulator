@@ -17,7 +17,7 @@ public class Button {
     this.opacity = 255;
   }
   
-  public void setLocation(int x, int y) {
+  public void setLocation(float x, float y) {
     location.x = x;
     location.y = y;
   }
@@ -50,7 +50,7 @@ public class Button {
     fill(base, opacity);
     if (hovering()) {
       fill(hover, opacity);
-      if (mousePressed) {
+      if (mousePressed && activated) {
         fill(clicked, opacity); 
       }
     }

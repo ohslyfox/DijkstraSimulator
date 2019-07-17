@@ -2,26 +2,26 @@ public class OptionsWindow {
   private DialogBox optionsDialog;
   private Button fromUp, fromDown, toUp, toDown, maxUp, maxDown,
                  dijkstra, createGraph, createLink, destroyLink;
-  private int from, to, totalNodes;
+  private int from, to, totalNodes, opacity;
   private boolean fade, visible;
-  private int opacity;
   
   public OptionsWindow() {
     fromUp = new Button(0, 0, 50, 18, ">");
     fromDown = new Button(0, 0, 50, 18, "<");
     toUp = new Button(0, 0, 50, 18, ">");
     toDown = new Button(0, 0, 50, 18, "<");
+    maxUp = new Button(0, 0, 50, 18, ">");
+    maxDown = new Button(0, 0, 50, 18, "<");
     dijkstra = new Button(0, 0, 230, 25, "dijkstra's shortest path");
     createGraph = new Button(0, 0, 112, 25, "new graph");
     createLink = new Button(0, 0, 112, 25, "create link");
     destroyLink = new Button(0, 0, 112, 25, "remove link");
-    maxUp = new Button(0, 0, 50, 18, ">");
-    maxDown = new Button(0, 0, 50, 18, "<");
+    
     from = 1;
-    to = 20;
-    totalNodes = 20;
+    to = MAX_NODES;
+    totalNodes = MAX_NODES;
     optionsDialog = new DialogBox(10, 10, 250, 204, "Settings");
-    optionsDialog.visible();
+    optionsDialog.toggleVisible();
     this.fade = false;
     this.visible = true;
     this.opacity = 255;
@@ -61,37 +61,22 @@ public class OptionsWindow {
     return this.visible;
   }
   
-  private void runDijkstra() {
-    ArrayList<Element> sol = graph.dijkstra(from-1);
-    ArrayList<Integer> path = new ArrayList<Integer>();
-    int current = to-1;
-    while (current >= 0) {
-      path.add(current);
-      current = sol.get(current).getPi();
-    }
-    
-    graph.setPathIDs(path);
-    for (int i = 0; i < graph.getSize(); i++) {
-      if (!path.contains(i) && i != from-1) {
-        sol.get(i).setPi(-2); 
-      }
-    }
-    println();
-    for (Element e : sol) {
-       println();
-       print((e.getUID()+1) + " : " + (e.getPi()+1) + " : " + e.getDistance());
-    }
-    println(); 
+  public int getFrom() {
+    return this.from; 
+  }
+  
+  public int getTo() {
+    return this.to; 
   }
   
   public void display() {
     if (this.visible) {
       if (fade) {
         if (hovering()) {
-          opacity = opacity < 255 ? opacity+20 : 255;
+          opacity = opacity < 255 ? opacity+12 : 255;
         }
         else {
-          opacity = opacity > 100 ? opacity-10 : 100;
+          opacity = opacity > 80 ? opacity-10 : 80;
         }
       }
       // turn on fade after first hover
@@ -102,7 +87,7 @@ public class OptionsWindow {
       }
       
       if (optionsDialog.getVisible() && !graph.isDragging()) {
-        if (mousePressed && optionsDialog.collision()) {
+        if (mousePressed && optionsDialog.hoveringTitleBar()) {
           optionsWindow.setPressed(true); 
         }
       }
@@ -110,12 +95,12 @@ public class OptionsWindow {
       optionsDialog.setOpacity(opacity);
       optionsDialog.display();
       if (optionsDialog.getVisible()) {
-        fill(0, 0, 0, opacity);
+        fill(0, opacity);
         text("From: " + from, optionsDialog.getX() + 10, optionsDialog.getY() + 54);
         text("To: " + to, optionsDialog.getX() + 135, optionsDialog.getY() + 54);
         text("Nodes: " + totalNodes, optionsDialog.getX() + 10, optionsDialog.getY() + 170);
-        textSize(10);
-        text("'S' to hide settings", optionsDialog.getX() + 123, optionsDialog.getY() + 194);
+        textSize(9);
+        text("'S' to hide settings", optionsDialog.getX() + 130, optionsDialog.getY() + 192);
         fromUp.setLocation(optionsDialog.getX() + 65, optionsDialog.getY() + 62);
         fromUp.setOpacity(opacity);
         fromUp.display();
@@ -152,39 +137,11 @@ public class OptionsWindow {
           }
         }
         
-        dijkstra.setLocation(optionsDialog.getX() + 10, optionsDialog.getY() + 90);
-        dijkstra.setOpacity(opacity);
-        dijkstra.display();
-        if (dijkstra.isPressed()) {
-          runDijkstra();
-        }
-        
-        createGraph.setLocation(optionsDialog.getX() + 128, optionsDialog.getY() + 152);
-        createGraph.setOpacity(opacity);
-        createGraph.display();
-        if (createGraph.isPressed()) {
-          graph.createGraph(); 
-        }
-        
-        createLink.setLocation(optionsDialog.getX() + 10, optionsDialog.getY() + 121);
-        createLink.setOpacity(opacity);
-        createLink.display();
-        if (createLink.isPressed()) {
-          graph.createLink(from-1, to-1); 
-        }
-        
-        destroyLink.setLocation(optionsDialog.getX() + 128, optionsDialog.getY() + 121);
-        destroyLink.setOpacity(opacity);
-        destroyLink.display();
-        if (destroyLink.isPressed()) {
-          graph.destroyLink(from-1, to-1); 
-        }
-        
         maxUp.setLocation(optionsDialog.getX() + 65, optionsDialog.getY() + 178);
         maxUp.setOpacity(opacity);
         maxUp.display();
         if (maxUp.isPressed()) {
-          if (totalNodes < 20) {
+          if (totalNodes < MAX_NODES) {
             totalNodes++; 
             graph.createNode();
           }
@@ -204,6 +161,34 @@ public class OptionsWindow {
             }
             graph.removeNode();
           }
+        }
+        
+        dijkstra.setLocation(optionsDialog.getX() + 10, optionsDialog.getY() + 88);
+        dijkstra.setOpacity(opacity);
+        dijkstra.display();
+        if (dijkstra.isPressed()) {
+          graph.runDijkstra();
+        }
+        
+        createGraph.setLocation(optionsDialog.getX() + 128, optionsDialog.getY() + 150);
+        createGraph.setOpacity(opacity);
+        createGraph.display();
+        if (createGraph.isPressed()) {
+          graph.createGraph(); 
+        }
+        
+        createLink.setLocation(optionsDialog.getX() + 10, optionsDialog.getY() + 119);
+        createLink.setOpacity(opacity);
+        createLink.display();
+        if (createLink.isPressed()) {
+          graph.createLink(from-1, to-1); 
+        }
+        
+        destroyLink.setLocation(optionsDialog.getX() + 128, optionsDialog.getY() + 119);
+        destroyLink.setOpacity(opacity);
+        destroyLink.display();
+        if (destroyLink.isPressed()) {
+          graph.destroyLink(from-1, to-1); 
         }
       }
     }

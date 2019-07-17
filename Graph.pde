@@ -1,5 +1,4 @@
 public class Graph {
-  private static final int MAX_VERTICIES = 20;
   private int vertexCount;
   private ArrayList<Element> vertexArray;
   private Element draggingElement;
@@ -21,20 +20,20 @@ public class Graph {
     createRandomConnections();
   }
   
-  void createVerticies() {
+  private void createVerticies() {
     vertexArray = new ArrayList<Element>();
-    for (int i = 0; i < MAX_VERTICIES; i++) {
+    for (int i = 0; i < MAX_NODES; i++) {
       PVector location = new PVector(random(50, width-50), random(50, height-50));
       vertexArray.add(new Element(location, i));
     }
   }
 
-  void validateVerticies() {
+  private void validateVerticies() {
     boolean found = true;
     while (found) {
       found = false;
-      for (int i = 0; i < MAX_VERTICIES && !found; i++) {
-        for (int j = 0; j < MAX_VERTICIES; j++) {
+      for (int i = 0; i < MAX_NODES && !found; i++) {
+        for (int j = 0; j < MAX_NODES; j++) {
           if (i == j) {
             continue; 
           }
@@ -50,9 +49,9 @@ public class Graph {
     }
   }
 
-  void createRandomConnections() {
+  private void createRandomConnections() {
     adjList = new ArrayList<ArrayList<Node>>();
-    for (int i = 0; i < MAX_VERTICIES; i++) {
+    for (int i = 0; i < MAX_NODES; i++) {
       adjList.add(new ArrayList<Node>()); 
     }
     
@@ -61,7 +60,7 @@ public class Graph {
       ArrayList<Node> current = adjList.get(i);
       Element from = vertexArray.get(i);
       
-      while (stop < MAX_VERTICIES-1) {
+      while (stop < MAX_NODES-1) {
         int random = (int)random(0, stop+10);
         if (random < 2) {
           int vertexToAdd = (int)random(0, this.vertexCount);
@@ -176,6 +175,29 @@ public class Graph {
     return min;
   }
   
+  private void runDijkstra() {
+    ArrayList<Element> sol = dijkstra(optionsWindow.getFrom()-1);
+    ArrayList<Integer> path = new ArrayList<Integer>();
+    int current = optionsWindow.getTo()-1;
+    while (current >= 0) {
+      path.add(current);
+      current = sol.get(current).getPi();
+    }
+    
+    graph.setPathIDs(path);
+    for (int i = 0; i < graph.getSize(); i++) {
+      if (!path.contains(i) && i != optionsWindow.getFrom()-1) {
+        sol.get(i).setPi(-2); 
+      }
+    }
+    println();
+    for (Element e : sol) {
+       println();
+       print((e.getUID()+1) + " : " + (e.getPi()+1) + " : " + e.getDistance());
+    }
+    println(); 
+  }
+  
   private void updateWeight() {
     for (int i = 0; i < adjList.size(); i++) {
       ArrayList<Node> fromList = adjList.get(i);
@@ -287,7 +309,7 @@ public class Graph {
     for (int i = 0; i < this.vertexCount; i++) {
       Element e = vertexArray.get(i);
       e.setFillColor(220,220,220,255);
-      if (hoveringElement == null && e.hovering() && !optionsWindow.hovering()) {
+      if (hoveringElement == null && e.hovering() && (!optionsWindow.hovering() || !optionsWindow.getVisible())) {
         hoveringElement = e;
       }
       if (hoveringElement != null) {
@@ -329,7 +351,7 @@ public class Graph {
           }
         }
       }
-      if (!hoveringElement.hovering() || optionsWindow.hovering()) {
+      if (!hoveringElement.hovering() || (optionsWindow.hovering() && optionsWindow.getVisible())) {
         hoveringElement = null;
       }
     }

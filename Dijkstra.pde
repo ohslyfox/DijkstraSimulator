@@ -1,12 +1,11 @@
-import g4p_controls.*;
+public static final int MAX_NODES = 20;
 
-Graph graph;
-OptionsWindow optionsWindow;
+private Graph graph;
+private OptionsWindow optionsWindow;
+private PFont mono;
+private boolean mousePress;
 
-PFont mono;
-boolean mousePress;
-
-void setup() {
+public void setup() {
   size(1280, 720);
   smooth(2);
   frameRate(60);
@@ -16,7 +15,7 @@ void setup() {
   mousePress = false;
   
   optionsWindow = new OptionsWindow();
-  graph = new Graph(20);
+  graph = new Graph(MAX_NODES);
 }
 
 public void keyPressed() {
@@ -25,14 +24,13 @@ public void keyPressed() {
   }
 }
 
-
 public void mouseReleased() {
   graph.mouseRelease();
   optionsWindow.mouseRelease();
   mousePress = false;
 }
 
-void draw() {
+public void draw() {
   background(255); 
   if (!optionsWindow.isPressed()) {
     graph.mousePress();
@@ -44,7 +42,7 @@ void draw() {
     mousePress = true;
   }
   
-  fill(0,0,0,200);
+  fill(0,200);
   textSize(12);
   textAlign(LEFT, CENTER);
   text("by slyfox", 5, height - 12);
